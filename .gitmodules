@@ -1,0 +1,3 @@
+[submodule "node_modules/license-key-gen"]
+	path = node_modules/license-key-gen
+	url = E:\\workspace\\restful-server
