@@ -17,6 +17,7 @@ const moment = require('moment');
 const nodemailer = require('nodemailer');
 const jsonfile = require("jsonfile");
 const multer = require('multer');
+const licenseKey = require('license-key-gen');
 
 const ejs = require("ejs");
 const path = require("path");
@@ -51,7 +52,7 @@ app.engine('html', ejs.renderFile);
 app.set('views', path.join(__dirname, './views'));
 
 app.use('/node_modules', express.static('node_modules'));
-    
+
 app.use('/uploads', express.static('uploads'));
 app.use('/uploads', serveIndex(__dirname + '/uploads'));
 
@@ -89,16 +90,15 @@ var offerTime = parseInt(parseArgs.offer) || 1000;
 var router = jsonServer.router('./db.json')
 
 
-var endPoints = [ 
+var endPoints = [
     'products',
     'brands',
     'cities',
     'states',
     'stores',
-    "orders"
+    "orders",
+    "license"
 ]
-
-
 
 app.get('/', function(req, res) {
     // now we pick end points from json file
@@ -109,7 +109,7 @@ app.get('/', function(req, res) {
     }
 
     res.render("index", {port, host, scheme, endPoints})
-    
+
 })
 
 var commandLine = process.argv.join(" ").toLowerCase();
@@ -118,9 +118,9 @@ console.log("Command Line ", commandLine);
 console.log(process.argv);
 
 var defaultsOpts = {
-     
+
 }
- 
+
 
 if (commandLine.indexOf("nocors") >= 0) {
     defaultsOpts.noCors = true;
@@ -128,17 +128,15 @@ if (commandLine.indexOf("nocors") >= 0) {
 
 var middlewares = jsonServer.defaults(defaultsOpts)
 app.use(middlewares)
- 
+
 
 function authenticateUser(req, res) {
     console.log("auth ", req.body.username);
-     
-     
 
     // take from db
     var usersMatched = router.db.get("users")
     .filter(function(user) {
-        return user.username == req.body.username && user.password == req.body.password; 
+        return user.username == req.body.username && user.password == req.body.password;
     })
     .take(1)
     .value()
@@ -150,7 +148,7 @@ function authenticateUser(req, res) {
 
     var user = usersMatched[0]
     console.log("Found user ", user);
-    
+
     var expires = moment().add('minutes', expiryInMinutes).valueOf();
     var token = jwt.encode({
     iss: user.id,
@@ -166,14 +164,14 @@ function authenticateUser(req, res) {
         expires: expires,
         identity: safeUser,
         token_type: 'jwt'
-    }); 
+    });
 }
 
 function validateToken(req, res, next) {
     console.log("validate token");
 
     var bearerToken;
-    
+
     var token = req.headers["x-auth-token"];
 
     if (!token) {
@@ -201,7 +199,7 @@ function validateToken(req, res, next) {
             // take from db
         var usersMatched = router.db.get("users")
         .filter(function(user) {
-            return user.id == decoded.iss; 
+            return user.id == decoded.iss;
         })
         .take(1)
         .value()
@@ -230,10 +228,10 @@ app.post('/oauth/token', authenticateUser);
 app.use(function(req, res, next){
     if (req.url.indexOf("/delayed") > -1) {
          //delay minimum 2 - 7 seconds
-         req.url = req.url.replace("/delayed", ""); 
+         req.url = req.url.replace("/delayed", "");
 
          setTimeout(function(){
-             next();      
+             next();
          }, Math.floor(2 + Math.random() * 7) * 1000);
      } else {
          next();
@@ -244,42 +242,36 @@ app.use("/secured", validateToken)
 
 app.use(function(req, res, next){
     if (req.url.indexOf("/secured") > -1) {
-            req.url = req.url.replace("/secured", ""); 
-             
-    }   
-            
+            req.url = req.url.replace("/secured", "");
+    }
+
     next();
 })
 
-
-
-
-// if (commandLine.indexOf("auth") >= 0) {
-//      console.log("Authentication enabled");
-//      server.post('/oauth/token', authenticateUser)
-//      server.use(validateToken); 
-// }
+if (commandLine.indexOf("auth") >= 0) {
+     console.log("Authentication enabled");
+     app.post('/oauth/token', authenticateUser)
+     app.post("/api/license/validate", validatekey)
+     app.use(validateToken);
+}
 
 app.post('/upload', upload.single('document'), (req, res, next) => {
-     
+
     console.log("** Uploaded file ", req.file.filename);
     res.json({'message': 'File uploaded successfully',
                 'result': true,
                 fileName: req.file.filename,
-                path: '/uploads/' +  req.file.filename, 
+                path: '/uploads/' +  req.file.filename,
                 url: `http://${host}:${port}/uploads/${req.file.filename}`
             });
-    
+
 });
-
-
-
 
 app.get('/api/exist/:model/:property/:value', function(req, res){
     var model = req.params['model'];
     var property = req.params['property']
     var value = req.params['value'];
-    
+
     if (!model || !value || !property || !router.db.has(model).value()) {
         res.status(422);
         res.end();
@@ -295,7 +287,7 @@ app.get('/api/exist/:model/:property/:value', function(req, res){
     })
     .take(1)
     .value()
- 
+
     if (results.length > 0) {
         res.json({result: true})
         res.end();
@@ -306,10 +298,70 @@ app.get('/api/exist/:model/:property/:value', function(req, res){
 })
 
 
+function keygen(req, res, next) {
+    // console.log("Req body ", req.body);
+    console.log("input userinfo ", req.body.user);
+    console.log("input licenseData ", req.body.product);
+
+    var license;
+    const userInfo = req.body.user;
+    const product = req.body.product;
+    var licenseData = {info:userInfo, prodCode: product.product, appVersion: product.version, osType: product.osType};
+
+    try{
+        license = licenseKey.createLicense(licenseData)
+        console.log(license);
+    }catch(err){
+        console.log(err);
+    }
+
+    return res.json(license);
+}
+
+function validatekey(req, res, next) {
+    console.log("Req body ", req.body);
+    console.log("input licensekey ", req.body.licensekey);
+    console.log("input userinfo ", req.body.user);
+    console.log("input licenseData ", req.body.product);
+
+    var validateResult = null;
+    const licensekey = req.body.licensekey;
+
+    if(!licensekey) {
+        console.error("license key not present");
+        res.status(403).json({error: 'license key not present'})
+        return;
+    }
+
+    // const user_info = {company:"webisto.tech",street:"123 licenseKey ave", city:"city/town", state:"State/Province", zip:"postal/zip"}
+    // const licenseData = {info:user_info, prodCode:"LEN100120", appVersion:"1.5", osType:'IOS8'}
+
+    const licenseData = {info: req.body.user, prodCode: req.body.product.product, appVersion: req.body.product.version, osType: req.body.product.osType};
+
+    try{
+        validateResult = licenseKey.validateLicense(licenseData, licensekey);
+        console.log(validateResult);
+    }catch(err){
+        console.log(err);
+        return res.status(403).json({error: 'fail to license key validation1.'})
+    }
+
+    if(!validateResult &&
+        validateResult.errorCode != 0 &&
+        !validateResult.message.equals('ok')) {
+        return res.status(403).json({error: 'fail to license key validation2.'})
+    }
+
+    return res.json(validateResult);
+}
+
+app.post("/api/license/keygen", keygen)
+// app.post("/api/license/validate", validatekey)
+
 app.post("/api/email", function(req, res) {
     console.log("Req body ", req.body);
     const email = req.body;
-   
+
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
         host: config.mail.host,
@@ -337,8 +389,8 @@ app.post("/api/email", function(req, res) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log("Error sending email ", error)
-             
-            res.status(500).json({result: false, 
+
+            res.status(500).json({result: false,
                                   error: error})
             return;
         }
@@ -348,14 +400,14 @@ app.post("/api/email", function(req, res) {
 
         // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-        
+
         res.json({
             result: true,
             msgId: info.messageId,
             preview: nodemailer.getTestMessageUrl(info)
         })
     });
- 
+
 });
 
 app.use('/api', router)
@@ -369,7 +421,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 io.on('connection', function(socket){
   console.log('a user connected');
-   
+
   var handle = setInterval(function() {
        var item = router.db.get("products").sample();
         // .filter(function(m) {
