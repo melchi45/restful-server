@@ -17,6 +17,7 @@
     "json-server": "^0.12.2",
     "jsonfile": "^3.0.1",
     "jwt-simple": "^0.5.1",
+    "license-key-gen": "git+https://github.com/melchi45/license-key-gen.git",
     "lodash": "^4.17.4",
     "lowdb": "^0.16.2",
     "minimist": "^1.2.0",
