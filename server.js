@@ -27,8 +27,6 @@ mkdirp.sync("uploads")
 
 const app = jsonServer.create()
 
-
-
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, 'uploads')
@@ -306,7 +304,7 @@ function keygen(req, res, next) {
     var license;
     const userInfo = req.body.user;
     const product = req.body.product;
-    var licenseData = {info:userInfo, prodCode: product.product, appVersion: product.version, osType: product.osType};
+    var licenseData = {info:userInfo, prodCode: product.product, appVersion: product.version, model: product.model};
 
     try{
         license = licenseKey.createLicense(licenseData)
@@ -334,9 +332,9 @@ function validatekey(req, res, next) {
     }
 
     // const user_info = {company:"webisto.tech",street:"123 licenseKey ave", city:"city/town", state:"State/Province", zip:"postal/zip"}
-    // const licenseData = {info:user_info, prodCode:"LEN100120", appVersion:"1.5", osType:'IOS8'}
+    // const licenseData = {info:user_info, prodCode:"LEN100120", appVersion:"1.5", model:'IOS8'}
 
-    const licenseData = {info: req.body.user, prodCode: req.body.product.product, appVersion: req.body.product.version, osType: req.body.product.osType};
+    const licenseData = {info: req.body.user, prodCode: req.body.product.product, appVersion: req.body.product.version, model: req.body.product.model};
 
     try{
         validateResult = licenseKey.validateLicense(licenseData, licensekey);
@@ -357,6 +355,12 @@ function validatekey(req, res, next) {
 
 app.post("/api/license/keygen", keygen)
 // app.post("/api/license/validate", validatekey)
+
+app.get("/api/license/version", (req, res, next) => {
+    console.log("version=" + licenseKey.version());
+    var versionData = {version:licenseKey.version()};
+    return res.json(versionData);
+})
 
 app.post("/api/email", function(req, res) {
     console.log("Req body ", req.body);
