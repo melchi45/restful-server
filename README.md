@@ -33,7 +33,6 @@ Note: Server doesn't do any data validation.
     to update (patch) existing resource with specific field name
     PATCH /api/products/1
             {followed by json data with specific field to update}
-
     
 
 # install
@@ -236,4 +235,55 @@ For activities log,
           }
 
      
+# License key generator
+This function connect to license-key-gen submodule to rest-server.
 
+
+
+    to get license version
+    GET /api/license/version
+    
+    to get a license key with data
+    POST /api/license/keygen
+    ..
+    Content-Type: application/json
+    {
+        "user": {
+            "company":"{{company}}",
+            "street":"{{street}}",
+            "city":"{{city}}", 
+            "state":"{{state}}",
+            "country":"{{country}}",
+            "zip":"{{zip}}"
+        },
+        "product": {
+            "product":"{{product}}",
+            "version":"{{version}}",
+            "expire":"{{expireDate}}",
+            "model":"{{model}}",
+            "fingerprint":"{{fingerprint}}"
+        }
+    }
+    
+    to validate license key
+    POST /api/license/validate
+    ..
+    Content-Type: application/json
+    {
+        "user": {
+            "company":"{{company}}",
+            "street":"{{street}}",
+            "city":"{{city}}", 
+            "state":"{{state}}",
+            "country":"{{country}}",
+            "zip":"{{zip}}"
+        },
+        "product": {
+            "product":"{{product}}",
+            "version":"{{version}}",
+            "expire":"{{expireDate}}",
+            "model":"{{model}}",
+            "fingerprint":"{{fingerprint}}"
+        }
+        "licensekey": "{{strLicense}}"
+    }
