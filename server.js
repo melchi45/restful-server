@@ -304,7 +304,7 @@ function keygen(req, res, next) {
     var license;
     const userInfo = req.body.user;
     const product = req.body.product;
-    var licenseData = {info:userInfo, prodCode: product.product, appVersion: product.version, model: product.model};
+    var licenseData = {info:userInfo, prodCode: product.product, appVersion: product.version, expireDate: product.expire, model: product.model, fingerprint: product.fingerprint};
 
     try{
         license = licenseKey.createLicense(licenseData)
@@ -320,28 +320,61 @@ function validatekey(req, res, next) {
     console.log("Req body ", req.body);
     console.log("input licensekey ", req.body.licensekey);
     console.log("input userinfo ", req.body.user);
+    console.log("input fingerprint ", req.body.product.fingerprint);
     console.log("input licenseData ", req.body.product);
+
+    var results_product_Filter = router.db.get("products")
+    .filter(function(product) {
+        return product.brandId == req.body.product.product;
+    })
+    .take(1)
+    .value()
+
+    if (!results_product_Filter || results_product_Filter.length == 0) {
+        var err = licenseKey.generateError('NOT_VALID_PRODCODE')
+        res.status(403)
+        res.json(err)
+        res.json(err)
+        res.end();
+        return;
+    }
+
+    // take from db
+    var results_clients_filter = router.db.get("clients")
+    .filter(function(client) {
+        return client.fingerprint == req.body.product.fingerprint;
+    })
+    .take(1)
+    .value()
+
+    if (!results_clients_filter || results_clients_filter.length == 0) {
+        var err = licenseKey.generateError('NOT_VALID_FINGERPRINT')
+        res.status(403)
+        res.json(err)
+        res.end();
+        return;
+    }
 
     var validateResult = null;
     const licensekey = req.body.licensekey;
 
-    if(!licensekey) {
-        console.error("license key not present");
-        res.status(403).json({error: 'license key not present'})
-        return;
-    }
+    // if(!licensekey) {
+    //     console.error("license key not present");
+    //     res.status(403).json({error: 'license key not present'})
+    //     return;
+    // }
 
     // const user_info = {company:"webisto.tech",street:"123 licenseKey ave", city:"city/town", state:"State/Province", zip:"postal/zip"}
     // const licenseData = {info:user_info, prodCode:"LEN100120", appVersion:"1.5", model:'IOS8'}
 
-    const licenseData = {info: req.body.user, prodCode: req.body.product.product, appVersion: req.body.product.version, model: req.body.product.model};
+    const licenseData = {info: req.body.user, prodCode: req.body.product.product, appVersion: req.body.product.version, expireDate: req.body.product.expire, model: req.body.product.model, fingerprint: req.body.product.fingerprint};
 
-    try{
+    try {
         validateResult = licenseKey.validateLicense(licenseData, licensekey);
         console.log(validateResult);
-    }catch(err){
+    } catch(err){
         console.log(err);
-        return res.status(403).json({error: 'fail to license key validation1.'})
+        return res.status(403).json(err)
     }
 
     if(!validateResult &&
@@ -354,7 +387,7 @@ function validatekey(req, res, next) {
 }
 
 app.post("/api/license/keygen", keygen)
-// app.post("/api/license/validate", validatekey)
+app.post("/api/license/validate", validatekey)
 
 app.get("/api/license/version", (req, res, next) => {
     console.log("version=" + licenseKey.version());

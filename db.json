@@ -40,7 +40,11 @@
       "id": 4
     }
   ],
-  "stores": [],
+  "stores": [
+    {
+      "id": 1
+    }
+  ],
   "orders": [
     {
       "info": {
@@ -1633,6 +1637,23 @@
       "year": 2018,
       "brandId": "5",
       "id": 111
+    },
+    {
+      "brandId": "LEN100121",
+      "camera": "5.0 MP AF with LED flash and geotagging, 1280 x 720 video at 30 frame/s (rear); 0.3 MP VGA (front)",
+      "cpu": "800 MHz Apple A4",
+      "display": "3.5\" 640 x 960 Retina display, 326 ppi",
+      "gpu": "PowerVR SGX 535",
+      "id": 112,
+      "name": "TestApp",
+      "os": "iOS 4, upgradeable to iOS 7.1.2",
+      "ram": "512 MB",
+      "size": "62.8 cm3 115.2 x 58.6 x 9.3 mm",
+      "storage": "8, 16 or 32 GB",
+      "weight": "137 g",
+      "year": 2010,
+      "price": 323,
+      "released": "2010-07-10T18:30:00.000Z"
     }
   ],
   "states": [
@@ -9091,6 +9112,16 @@
       "name": "Mumbai",
       "state": "Maharashtra",
       "stateId": 26
+    }
+  ],
+  "clients": [
+    {
+      "id": 1,
+      "fingerprint": "1234567890"
+    },
+    {
+      "id": 2,
+      "fingerprint": "3456789012"
     }
   ]
 }

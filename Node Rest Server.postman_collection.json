@@ -1,0 +1,983 @@
+{
+	"info": {
+		"_postman_id": "2d6c5f49-ef3d-474f-a7d7-9e7178b7cff7",
+		"name": "Node Rest Server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "oauth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    // var html = $.parseHTML(responseBody);\r",
+							"    // var jqResponseHTML = $(html);\r",
+							"    // var text = jqResponseHTML.text();\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.token).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strToken\", jsonData.token);\r",
+							"    // console.log({{token}});\r",
+							"    postman.setGlobalVariable(\"strName\", jsonData.identity.name);\r",
+							"    postman.setGlobalVariable(\"role\", jsonData.identity.role);\r",
+							"    postman.setGlobalVariable(\"token_type\", jsonData.token_type);\r",
+							"}\r",
+							"\r",
+							"// var value = text.replace(\"Insert title here\", \"\");\r",
+							"//var nonce = value.replace(/(?:\\\\[rn])+/g, \"\");\r",
+							"// var nonce = value.replace(/(?:\\\\[rn]|[\\r\\n]+)+/g, \"\");\r",
+							"// var username=\"melchi0000\";\r",
+							"// var email=\"melchi000@gmail.com\";\r",
+							"// var name=\"Test User\";\r",
+							"// var password=\"5tkatjd!@#\";\r",
+							"// var camera_serial=\"khnl6v2d800011n\";\r",
+							"\r",
+							"// postman.setGlobalVariable(\"nonce\", nonce);\r",
+							"// postman.setGlobalVariable(\"user_name\", username);\r",
+							"// postman.setGlobalVariable(\"user_email\", email);\r",
+							"// postman.setGlobalVariable(\"name\", name);\r",
+							"// postman.setGlobalVariable(\"user_password\", password);\r",
+							"// postman.setGlobalVariable(\"user_pasword_sha256\", CryptoJS.SHA256(password));\r",
+							"// postman.setGlobalVariable(\"camera_serial\", camera_serial);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setGlobalVariable(\"username\", \"admin\");\r",
+							"postman.setGlobalVariable(\"password\", \"admin\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"{{username}}\",\r\n    \"password\":\"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/oauth/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "validation token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.token).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    console.log(jsonData);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "x-auth-token",
+						"value": "{{strToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:7070/secured",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"secured"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "products",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": null
+			},
+			"response": []
+		},
+		{
+			"name": "license version",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    console.log(jsonData.version);\r",
+							"} else {\r",
+							"    console.log(\"status=\" + responseCode.code);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/license/version",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"license",
+						"version"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "license keygen [key generate]",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setGlobalVariable(\"company\", \"Hanwha Techwin\");\r",
+							"postman.setGlobalVariable(\"street\", \"123 licenseKey ave\");\r",
+							"postman.setGlobalVariable(\"city\", \"city/town\");\r",
+							"postman.setGlobalVariable(\"state\", \"State/Province\");\r",
+							"postman.setGlobalVariable(\"country\", \"country\");\r",
+							"postman.setGlobalVariable(\"zip\", \"postal/zip\");\r",
+							"\r",
+							"postman.setGlobalVariable(\"product\", \"LEN100121\");\r",
+							"postman.setGlobalVariable(\"version\", \"1.6\");\r",
+							"postman.setGlobalVariable(\"model\", \"ONV-9081R\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"license key generated.\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty\r",
+							"        console.log(jsonData.license);\r",
+							"    });\r",
+							"\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user\": {\r\n        \"company\":\"{{company}}\",\r\n        \"street\":\"{{street}}\",\r\n        \"city\":\"{{city}}\", \r\n        \"state\":\"{{state}}\",\r\n        \"country\":\"{{country}}\",\r\n        \"zip\":\"{{zip}}\"\r\n    },\r\n    \"product\": {\r\n        \"product\":\"{{product}}\",\r\n        \"version\":\"{{version}}\",\r\n        \"model\":\"{{model}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/license/keygen",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"license",
+						"keygen"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "license check [input validate key]",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"license key is validate.\", () => {\r",
+							"        pm.expect(jsonData.errorCode).equals(0);\r",
+							"    });\r",
+							"\r",
+							"    console.log(\"validation result=\" + (parseInt(jsonData.errorCode) === 0 && jsonData.message === 'ok'));\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user\": {\r\n        \"company\":\"{{company}}\",\r\n        \"street\":\"{{street}}\",\r\n        \"city\":\"{{city}}\", \r\n        \"state\":\"{{state}}\",\r\n        \"country\":\"{{country}}\",\r\n        \"zip\":\"{{zip}}\"\r\n    },\r\n    \"product\": {\r\n        \"product\":\"{{product}}\",\r\n        \"version\":\"{{version}}\",\r\n        \"model\":\"{{model}}\"\r\n    },\r\n    \"licensekey\": \"{{strLicense}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/license/validate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"license",
+						"validate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "license check [input invalidate key]",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"console.error(\"status=\" + responseCode.code)\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"license key is invalidate.\", () => {\r",
+							"        pm.expect(jsonData.errorCode).equals(1006);\r",
+							"    });\r",
+							"\r",
+							"    console.error(\"validation result=\" + parseInt(jsonData.errorCode) + \", message=\" + jsonData.message);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user\": {\r\n        \"company\":\"{{company}}\",\r\n        \"street\":\"{{street}}\",\r\n        \"city\":\"{{city}}\", \r\n        \"state\":\"{{state}}\",\r\n        \"country\":\"{{country}}\",\r\n        \"zip\":\"{{zip}}\"\r\n    },\r\n    \"product\": {\r\n        \"product\":\"{{product}}\",\r\n        \"version\":\"1.7\",\r\n        \"model\":\"{{model}}\"\r\n    },\r\n    \"licensekey\": \"{{strLicense}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/license/validate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"license",
+						"validate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "brands",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "orders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/brands",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"brands"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "states",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/states",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"states"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cities",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/cities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"cities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "model",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setGlobalVariable(\"company\", \"Hanwha Techwin\");\r",
+							"postman.setGlobalVariable(\"street\", \"123 licenseKey ave\");\r",
+							"postman.setGlobalVariable(\"city\", \"city/town\");\r",
+							"postman.setGlobalVariable(\"state\", \"State/Province\");\r",
+							"postman.setGlobalVariable(\"country\", \"country\");\r",
+							"postman.setGlobalVariable(\"zip\", \"postal/zip\");\r",
+							"\r",
+							"postman.setGlobalVariable(\"product\", \"LEN100120\");\r",
+							"postman.setGlobalVariable(\"version\", \"1.5\");\r",
+							"postman.setGlobalVariable(\"osType\", \"LINUX\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/exist/model",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"exist",
+						"model"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "stores",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setGlobalVariable(\"company\", \"Hanwha Techwin\");\r",
+							"postman.setGlobalVariable(\"street\", \"123 licenseKey ave\");\r",
+							"postman.setGlobalVariable(\"city\", \"city/town\");\r",
+							"postman.setGlobalVariable(\"state\", \"State/Province\");\r",
+							"postman.setGlobalVariable(\"country\", \"country\");\r",
+							"postman.setGlobalVariable(\"zip\", \"postal/zip\");\r",
+							"\r",
+							"postman.setGlobalVariable(\"product\", \"LEN100120\");\r",
+							"postman.setGlobalVariable(\"version\", \"1.5\");\r",
+							"postman.setGlobalVariable(\"osType\", \"LINUX\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/api/stores",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"api",
+						"stores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logs errors",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/logs/errors",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"logs",
+						"errors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logs activities",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"\r",
+							"if(responseCode.code === 200) {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.test(\"oauth valiation checke:\", () => {\r",
+							"        pm.expect(jsonData.license).to.be.not.empty;\r",
+							"    });\r",
+							"\r",
+							"    // console.log(jsonData);\r",
+							"    postman.setGlobalVariable(\"strLicense\", jsonData.license);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token_type}} {{strToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7070/logs/activities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7070",
+					"path": [
+						"logs",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
