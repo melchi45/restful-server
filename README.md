@@ -236,9 +236,7 @@ For activities log,
 
      
 # License key generator
-This function connect to license-key-gen submodule to rest-server.
-
-
+license-key-gen submodule add to rest-server. license-key-gen url is https://github.com/melchi45/license-key-gen.
 
     to get license version
     GET /api/license/version
